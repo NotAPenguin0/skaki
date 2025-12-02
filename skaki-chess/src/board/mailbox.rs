@@ -1,5 +1,6 @@
 use anyhow::bail;
 use crate::board::Board;
+use crate::square::Square;
 
 /// A simple array-based board, storing tokens in a list with each element corresponding to a token (or no token).
 pub struct MailboxBoard<T> {
@@ -33,15 +34,15 @@ impl<T: Clone> Board for MailboxBoard<T> {
         self.height
     }
 
-    fn at(&self, row: u16, column: u16) -> Option<Self::Token> {
-        let index = self.index(row, column);
+    fn at(&self, square: Square) -> Option<Self::Token> {
+        let index = self.index(square.row, square.column);
         self.tokens.get(index)?.clone()
     }
 
-    fn set(&mut self, row: u16, column: u16, token: Option<Self::Token>) -> anyhow::Result<()> {
-        let index = self.index(row, column);
+    fn set(&mut self, square: Square, token: Option<Self::Token>) -> anyhow::Result<()> {
+        let index = self.index(square.row, square.column);
         if index >= self.tokens.len() {
-            bail!("Board index ({}, {}) is out of bounds for board with size ({}, {})", row, column, self.width(), self.height());
+            bail!("Board index ({}, {}) is out of bounds for board with size ({}, {})", square.row, square.column, self.width(), self.height());
         }
         self.tokens[index] = token;
         Ok(())
@@ -56,6 +57,7 @@ impl<T: Clone> Board for MailboxBoard<T> {
 mod tests {
     use crate::board::Board;
     use crate::board::mailbox::MailboxBoard;
+    use crate::square::Square;
 
     // Anything can be a piece.
     #[derive(Debug, Clone, Eq, PartialEq)]
@@ -71,29 +73,29 @@ mod tests {
         assert_eq!(board.width(), 4);
         assert_eq!(board.height(), 4);
 
-        board.set(0, 0, Some(Piece::Bob)).expect("Should be able to set pieces on valid squares.");
-        board.set(2, 2, Some(Piece::Alice)).expect("Should be able to set pieces on valid squares.");
+        board.set(Square::new(0, 0), Some(Piece::Bob)).expect("Should be able to set pieces on valid squares.");
+        board.set(Square::new(2, 2), Some(Piece::Alice)).expect("Should be able to set pieces on valid squares.");
 
         // Should be able to retrieve the pieces again
-        assert_eq!(board.at(0, 0), Some(Piece::Bob));
-        assert_eq!(board.at(2, 2), Some(Piece::Alice));
+        assert_eq!(board.at(Square::new(0, 0)), Some(Piece::Bob));
+        assert_eq!(board.at(Square::new(2, 2)), Some(Piece::Alice));
         // Squares that were not set should be empty
-        assert_eq!(board.at(2, 1), None);
+        assert_eq!(board.at(Square::new(2, 1)), None);
     }
 
     #[test]
     fn out_of_bounds() {
         let mut board = MailboxBoard::<Piece>::new(4, 4);
 
-        assert!(board.at(10, 10).is_none());
-        assert!(board.set(10, 10, Some(Piece::Alice)).is_err());
+        assert!(board.at(Square::new(10, 10)).is_none());
+        assert!(board.set(Square::new(10, 10), Some(Piece::Alice)).is_err());
     }
-    
+
     #[test]
     fn clear_board() {
         let mut board = MailboxBoard::new(4, 4);
-        board.set(0, 0, Some(Piece::Bob)).expect("Should be able to set pieces on valid squares.");
+        board.set(Square::new(0, 0), Some(Piece::Bob)).expect("Should be able to set pieces on valid squares.");
         board.clear();
-        assert_eq!(board.at(0, 0), None);
+        assert_eq!(board.at(Square::new(0, 0)), None);
     }
 }

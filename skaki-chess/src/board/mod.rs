@@ -1,3 +1,5 @@
+use crate::square::Square;
+
 pub mod mailbox;
 
 /// A generic representation of a chess board.
@@ -15,12 +17,12 @@ pub trait Board {
     /// Get the token at the specified location.
     ///
     /// Always returns `None` if the square is outside the board.
-    fn at(&self, row: u16, column: u16) -> Option<Self::Token>;
+    fn at(&self, square: Square) -> Option<Self::Token>;
 
     /// Set the token at the specified location. Set to `None` to clear the square instead.
     ///
     /// Returns Err(_) if the square is outside the board.
-    fn set(&mut self, row: u16, column: u16, token: Option<Self::Token>) -> anyhow::Result<()>;
+    fn set(&mut self, square: Square, token: Option<Self::Token>) -> anyhow::Result<()>;
 
     /// Clears the entire board, setting each square to the empty token.
     fn clear(&mut self);

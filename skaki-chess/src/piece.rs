@@ -1,6 +1,6 @@
-/// A piece in a game of chess
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum Piece {
+/// A piece in a standard game of chess
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum StandardPiece {
     Pawn,
     Knight,
     Bishop,
@@ -19,7 +19,13 @@ pub enum PieceColor {
 
 /// A piece with an associated color (either white or black)
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct ColoredPiece {
-    piece: Piece,
+pub struct ColoredStandardPiece {
+    piece: StandardPiece,
     color: PieceColor,
+}
+
+impl ColoredStandardPiece {
+    pub fn new(piece: StandardPiece, color: PieceColor) -> Self {
+        ColoredStandardPiece { piece, color }
+    }
 }
