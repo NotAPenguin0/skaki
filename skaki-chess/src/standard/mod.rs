@@ -1,3 +1,3 @@
 pub mod moves;
 pub mod validator;
-mod piece;
+pub mod piece;

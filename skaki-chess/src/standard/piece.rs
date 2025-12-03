@@ -28,4 +28,12 @@ impl ColoredStandardPiece {
     pub fn new(piece: StandardPiece, color: PieceColor) -> Self {
         ColoredStandardPiece { piece, color }
     }
+
+    pub fn piece(&self) -> StandardPiece {
+        self.piece
+    }
+
+    pub fn color(&self) -> PieceColor {
+        self.color
+    }
 }

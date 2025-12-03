@@ -30,6 +30,14 @@ impl StandardMove {
             promotion: Some(promotion),
         }
     }
+
+    pub fn from(&self) -> Square {
+        self.from
+    }
+
+    pub fn to(&self) -> Square {
+        self.to
+    }
 }
 
 impl Move for StandardMove {}

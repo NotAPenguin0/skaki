@@ -1,6 +1,9 @@
+mod piece_move;
+
 use crate::board::Board;
 use crate::standard::moves::StandardMove;
 use crate::standard::piece::ColoredStandardPiece;
+use crate::standard::validator::piece_move::is_movement_illegal;
 use crate::validator::MoveValidator;
 
 /// The standard move validator, implements the basic chess rules.
@@ -13,7 +16,22 @@ pub struct StandardMoveValidator {
 // standard moves. This move validator implements the ruleset for these games.
 impl<B: Board<Token = ColoredStandardPiece>> MoveValidator<B, StandardMove> for StandardMoveValidator {
     fn validate(&self, board: &B, mov: &StandardMove) -> bool {
-        true
+        // An empty move is not valid, you cannot move an empty square.
+        if let Some(piece) = board.at(mov.from()) {
+            // You cannot move from a square to the same square
+            if mov.from() == mov.to() { return false; }
+            
+            // Simple check if the movement itself is legal.
+            // If it isn't, we can skip any complicated checks.
+            if is_movement_illegal(piece, board, mov.from(), mov.to()) {
+                return false;
+            } else {
+                // TODO: We have verified that the basic movement is allowed. Now we need to check everything else.
+                return true;
+            }
+        }
+
+        false
     }
 }
 

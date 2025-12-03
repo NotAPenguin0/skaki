@@ -11,8 +11,12 @@ pub trait Board {
 
     /// The width of the board
     fn width(&self) -> u16;
+
     /// The height of the board
     fn height(&self) -> u16;
+
+    /// Whether this square is a valid square on the board.
+    fn valid_square(&self, square: Square) -> bool;
 
     /// Get the token at the specified location.
     ///
@@ -26,4 +30,9 @@ pub trait Board {
 
     /// Clears the entire board, setting each square to the empty token.
     fn clear(&mut self);
+
+    /// Executes a move on the board. If there is a token on the starting square, set the token of the destination square
+    /// to this token. Otherwise, do nothing.
+    /// Does not check the legality of moves in any way.
+    fn make_move(&mut self, from: Square, to: Square) -> anyhow::Result<()>;
 }

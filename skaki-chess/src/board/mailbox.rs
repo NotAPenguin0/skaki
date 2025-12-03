@@ -1,4 +1,4 @@
-use anyhow::bail;
+use anyhow::{bail, ensure, Context};
 use crate::board::Board;
 use crate::square::Square;
 
@@ -34,6 +34,11 @@ impl<T: Clone> Board for MailboxBoard<T> {
         self.height
     }
 
+    fn valid_square(&self, square: Square) -> bool {
+        let index = self.index(square.row, square.column);
+        index < self.tokens.len()
+    }
+
     fn at(&self, square: Square) -> Option<Self::Token> {
         let index = self.index(square.row, square.column);
         self.tokens.get(index)?.clone()
@@ -50,6 +55,17 @@ impl<T: Clone> Board for MailboxBoard<T> {
 
     fn clear(&mut self) {
         self.tokens.fill(None);
+    }
+
+    fn make_move(&mut self, from: Square, to: Square) -> anyhow::Result<()> {
+        ensure!(self.valid_square(from), "Source square is not inside the board");
+
+        if let Some(token) = self.at(from) {
+            self.set(to, Some(token))
+                .with_context(|| "Destination square is not inside the board".to_string())?;
+        }
+
+        Ok(())
     }
 }
 
