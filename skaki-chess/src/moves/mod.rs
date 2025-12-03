@@ -1,5 +1,4 @@
 pub mod standard;
-pub mod validator;
 
 
 /// Different variants may have different representations of moves.
