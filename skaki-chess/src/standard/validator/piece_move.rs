@@ -41,6 +41,14 @@ pub fn is_knight_move_illegal(from: Square, to: Square) -> bool {
     !(row_diff == 1 && col_diff == 2) && !(row_diff == 2 && col_diff == 1)
 }
 
+pub fn is_bishop_move_illegal(from: Square, to: Square) -> bool {
+    // Bishops can only move diagonally, so they are only legal if the
+    // horizontal distance is the same as the vertical distance
+    let row_diff = u16::abs_diff(from.row, to.row);
+    let col_diff = u16::abs_diff(from.column, to.column);
+    row_diff != col_diff
+}
+
 /// Implements basic piece movement. Does not do any checking about
 /// the rest of the board. Does not make any verdict about whether the move is actually allowed.
 /// This method can only be used to fast-fail things like bishops moving straight, or knights jumping across the board.
@@ -56,10 +64,10 @@ pub fn is_movement_illegal<B: Board<Token = ColoredStandardPiece>>(piece: Colore
             is_pawn_move_illegal(piece.color(), board.height(), from, to)
         }
         StandardPiece::Knight => {
-            true
+            is_knight_move_illegal(from, to)
         }
         StandardPiece::Bishop => {
-            true
+            is_bishop_move_illegal(from, to)
         }
         StandardPiece::Rook => {
             true
@@ -132,5 +140,13 @@ mod test {
         assert!(!is_knight_move_illegal(Square::parse("c2").unwrap(), Square::parse("d4").unwrap()));
         assert!(!is_knight_move_illegal(Square::parse("e5").unwrap(), Square::parse("f3").unwrap()));
         assert!(!is_knight_move_illegal(Square::parse("a4").unwrap(), Square::parse("c5").unwrap()));
+    }
+    
+    #[test]
+    fn test_bishop_moves() {
+        assert!(is_bishop_move_illegal(Square::parse("f1").unwrap(), Square::parse("f2").unwrap()));
+        assert!(is_bishop_move_illegal(Square::parse("e4").unwrap(), Square::parse("c3").unwrap()));
+        assert!(!is_bishop_move_illegal(Square::parse("g7").unwrap(), Square::parse("a1").unwrap()));
+        assert!(!is_bishop_move_illegal(Square::parse("c6").unwrap(), Square::parse("e8").unwrap()));
     }
 }
