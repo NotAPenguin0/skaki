@@ -8,6 +8,5 @@ mod standard;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
 }

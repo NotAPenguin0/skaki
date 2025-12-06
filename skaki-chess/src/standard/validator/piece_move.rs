@@ -49,6 +49,14 @@ pub fn is_bishop_move_illegal(from: Square, to: Square) -> bool {
     row_diff != col_diff
 }
 
+pub fn is_rook_move_illegal(from: Square, to: Square) -> bool {
+    // Rooks can only move in a straight line.
+    let row_diff = u16::abs_diff(from.row, to.row);
+    let col_diff = u16::abs_diff(from.column, to.column);
+    // The move is only legal if exactly one of row_diff or col_diff is nonzero
+    !((row_diff > 0) ^ (col_diff > 0))
+}
+
 /// Implements basic piece movement. Does not do any checking about
 /// the rest of the board. Does not make any verdict about whether the move is actually allowed.
 /// This method can only be used to fast-fail things like bishops moving straight, or knights jumping across the board.
@@ -70,7 +78,7 @@ pub fn is_movement_illegal<B: Board<Token = ColoredStandardPiece>>(piece: Colore
             is_bishop_move_illegal(from, to)
         }
         StandardPiece::Rook => {
-            true
+            is_rook_move_illegal(from, to)
         }
         StandardPiece::Queen => {
             true
@@ -141,12 +149,20 @@ mod test {
         assert!(!is_knight_move_illegal(Square::parse("e5").unwrap(), Square::parse("f3").unwrap()));
         assert!(!is_knight_move_illegal(Square::parse("a4").unwrap(), Square::parse("c5").unwrap()));
     }
-    
+
     #[test]
     fn test_bishop_moves() {
         assert!(is_bishop_move_illegal(Square::parse("f1").unwrap(), Square::parse("f2").unwrap()));
         assert!(is_bishop_move_illegal(Square::parse("e4").unwrap(), Square::parse("c3").unwrap()));
         assert!(!is_bishop_move_illegal(Square::parse("g7").unwrap(), Square::parse("a1").unwrap()));
         assert!(!is_bishop_move_illegal(Square::parse("c6").unwrap(), Square::parse("e8").unwrap()));
+    }
+
+    #[test]
+    fn test_rook_moves() {
+        assert!(is_rook_move_illegal(Square::parse("f1").unwrap(), Square::parse("d7").unwrap()));
+        assert!(is_rook_move_illegal(Square::parse("g7").unwrap(), Square::parse("e5").unwrap()));
+        assert!(!is_rook_move_illegal(Square::parse("e3").unwrap(), Square::parse("a3").unwrap()));
+        assert!(!is_rook_move_illegal(Square::parse("d5").unwrap(), Square::parse("d1").unwrap()));
     }
 }
