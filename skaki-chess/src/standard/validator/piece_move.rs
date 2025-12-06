@@ -57,6 +57,20 @@ pub fn is_rook_move_illegal(from: Square, to: Square) -> bool {
     !((row_diff > 0) ^ (col_diff > 0))
 }
 
+pub fn is_queen_move_illegal(from: Square, to: Square) -> bool {
+    // A queen can move like a bishop and rook combined, so a queen move is illegal if
+    // it is neither a legal bishop move nor a legal rook move.
+    is_bishop_move_illegal(from, to) && is_rook_move_illegal(from, to)
+}
+
+pub fn is_king_move_illegal(from: Square, to: Square) -> bool {
+    // A king can move one square in any direction. This means that the move is illegal if the
+    // absolute difference in either row/column is more than one.
+    let row_diff = u16::abs_diff(from.row, to.row);
+    let col_diff = u16::abs_diff(from.column, to.column);
+    row_diff > 1 || col_diff > 1
+}
+
 /// Implements basic piece movement. Does not do any checking about
 /// the rest of the board. Does not make any verdict about whether the move is actually allowed.
 /// This method can only be used to fast-fail things like bishops moving straight, or knights jumping across the board.
@@ -81,7 +95,7 @@ pub fn is_movement_illegal<B: Board<Token = ColoredStandardPiece>>(piece: Colore
             is_rook_move_illegal(from, to)
         }
         StandardPiece::Queen => {
-            true
+            is_queen_move_illegal(from, to)
         }
         StandardPiece::King => {
             true
@@ -164,5 +178,26 @@ mod test {
         assert!(is_rook_move_illegal(Square::parse("g7").unwrap(), Square::parse("e5").unwrap()));
         assert!(!is_rook_move_illegal(Square::parse("e3").unwrap(), Square::parse("a3").unwrap()));
         assert!(!is_rook_move_illegal(Square::parse("d5").unwrap(), Square::parse("d1").unwrap()));
+    }
+
+    #[test]
+    fn test_queen_moves() {
+        assert!(is_queen_move_illegal(Square::parse("c2").unwrap(), Square::parse("d4").unwrap()));
+        assert!(is_queen_move_illegal(Square::parse("e5").unwrap(), Square::parse("f3").unwrap()));
+        assert!(is_queen_move_illegal(Square::parse("a4").unwrap(), Square::parse("c5").unwrap()));
+        assert!(!is_queen_move_illegal(Square::parse("g7").unwrap(), Square::parse("a1").unwrap()));
+        assert!(!is_queen_move_illegal(Square::parse("c6").unwrap(), Square::parse("e8").unwrap()));
+        assert!(!is_queen_move_illegal(Square::parse("e3").unwrap(), Square::parse("a3").unwrap()));
+        assert!(!is_queen_move_illegal(Square::parse("d5").unwrap(), Square::parse("d1").unwrap()));
+    }
+    
+    #[test]
+    fn test_king_moves() {
+        assert!(is_king_move_illegal(Square::parse("e1").unwrap(), Square::parse("e4").unwrap()));
+        assert!(is_king_move_illegal(Square::parse("c4").unwrap(), Square::parse("f7").unwrap()));
+        assert!(is_king_move_illegal(Square::parse("g7").unwrap(), Square::parse("e5").unwrap()));
+        assert!(!is_king_move_illegal(Square::parse("a4").unwrap(), Square::parse("b5").unwrap()));
+        assert!(!is_king_move_illegal(Square::parse("c2").unwrap(), Square::parse("d1").unwrap()));
+        assert!(!is_king_move_illegal(Square::parse("h7").unwrap(), Square::parse("g6").unwrap()));
     }
 }
